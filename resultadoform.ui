@@ -83,12 +83,12 @@
     <rect>
      <x>140</x>
      <y>220</y>
-     <width>49</width>
+     <width>91</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>000%</string>
+    <string>000.00%</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnCerrar">

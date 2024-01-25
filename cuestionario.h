@@ -11,28 +11,31 @@ class Cuestionario
 {
 public:
     Cuestionario();
-    Cuestionario(Tema *tema);
+    Cuestionario(QString asignatura, Tema *tema);
 
     Pregunta *siguiente();
     void terminar();
     const QStringList &terminos() const;
 
     float score() const;
-    int totalPreguntas() const;
-    bool otrasPreguntas();
-    int mostradas() const;
-
 
     const QList<Pregunta *> &preguntas() const;
     const QString nombreTema() const;
+    int totalPreguntas();
+    bool hayMasPreguntas();
+
+    int mostradas() const;
+
+    const QString &asignatura() const;
+    void setAsignatura(const QString &newAsignatura);
 
 private:
     float m_score;
     Tema *m_tema;
+    QString m_asignatura;
     QList<Pregunta*> m_preguntas;
     QStringList m_terminos;
     int m_mostradas;
-    QString m_asignaturas;
-};
+    };
 
-#endif // CUESTIONARIO_H
+    #endif // CUESTIONARIO_H

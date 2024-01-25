@@ -7,6 +7,7 @@ CreditosForm::CreditosForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->listCreditos->addItem("Carrera de Computacion");
     Contribuidores c1("Ing. Rodrigo Tufiño", QUrl("https://github.com/rtufino"));
     Contribuidores c2("Mateo Espinosa", QUrl("https://github.com/EonSoulCout"));
     Contribuidores c3("David Ramos", QUrl("https://github.com/defaultdavr21"));

@@ -13,11 +13,13 @@ ResultadoForm::~ResultadoForm()
     delete ui;
 }
 
-void ResultadoForm::setDatos(Cuestionario *cuestionario)
+void ResultadoForm::setCuestionario(Cuestionario *newCuestionario)
 {
-        m_cuestionario = cuestionario;
+    m_cuestionario = newCuestionario;
+
         cargarDatos();
 }
+
 
 void ResultadoForm::cargarDatos()
 {
@@ -26,7 +28,7 @@ void ResultadoForm::cargarDatos()
 
     QString porcentaje = QString::number(score, 'f', 2) + "%";
 
-    ui->lblScore->setText("Score: " + porcentaje);
+    ui->lblScore->setText(porcentaje);
     ui->lblTema->setText(tema);
 
     QList<Pregunta *> preguntas = m_cuestionario->preguntas();

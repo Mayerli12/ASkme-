@@ -7,7 +7,6 @@ Askme::Askme(QWidget *parent)
 {
     ui->setupUi(this);
     cargarDatos();
-     connect(ui->actionSalir, SIGNAL(triggered()), this, SLOT(on_actionSalir_triggered()));
 }
 
 Askme::~Askme()
@@ -17,21 +16,7 @@ Askme::~Askme()
 
 void Askme::on_apunteTomado(Apunte *apunte)
 {
-    // TODO: Guardar datos en CSV
-    foreach(Asignatura *a, m_asignaturas)
-    {
-        qDebug().noquote() << a->toString();
-    }
-
-    //cargar();
-    if (ui->mdiArea->currentSubWindow())
-    {
-        ListForm *listaVentana = qobject_cast<ListForm *>(ui->mdiArea->currentSubWindow()->widget());
-        if (listaVentana)
-        {
-            listaVentana->cargarAsignaturas();
-        }
-    }
+    guardarDatos();
 }
 
 void Askme::on_cuestionarioCreado(Cuestionario *cuestionario)
@@ -39,16 +24,16 @@ void Askme::on_cuestionarioCreado(Cuestionario *cuestionario)
     PreguntaForm *w = new PreguntaForm(this);
     w->setCuestionario(cuestionario);
 
-    connect(w, SIGNAL(preguntasContestadas(Cuestionario*)), this, SLOT(on_preguntasContestadas(Cuestionario*)));
+    connect(w,SIGNAL(cuestionarioFinalizado(Cuestionario*)), this, SLOT(on_cuestionarioFinalizado(Cuestionario *)));
 
     cargarSubVentana(w);
 }
 
-void Askme::on_preguntasContestadas(Cuestionario *cuestionario)
+void Askme::on_cuestionarioFinalizado(Cuestionario *cuestionario)
 {
-    cuestionario->terminar();
     ResultadoForm *w = new ResultadoForm(this);
-    w->setDatos(cuestionario);
+    w->setCuestionario(cuestionario);
+
     cargarSubVentana(w);
 }
 
@@ -60,95 +45,67 @@ void Askme::cargarSubVentana(QWidget *ventana)
 
 void Askme::cargarDatos()
 {
-    // TODO: Cargar datos desde CSV
-
-    QFile file("apuntes.csv");
-    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QTextStream entrada(&file);
-        entrada.readLine();
-        while(!entrada.atEnd())
-        {
+    // Verificar si el archivo existe
+    QFile archivo(ARCHIVO);
+    if (!archivo.exists())
+        return;
+    // variables adicionales
+    QString asignatura = "";
+    QString tema = "";
+    int indexA = -1;
+    int indexT = -1;
+    // cargar datos
+    if (archivo.open(QFile::ReadOnly)) {
+        QTextStream entrada(&archivo);
+        while(!entrada.atEnd()){
             QString linea = entrada.readLine();
             QStringList datos = linea.split("\t");
-            if(datos.size() >= 4)
-            {
-                QString nombreAsignatura = datos[0].trimmed();
-                QString nombreTema = datos[1].trimmed();
-                QString termino = datos[2].trimmed();
-                QString concepto = datos[3].trimmed();
-                Asignatura *asignatura = nullptr;
-                Tema *tema = nullptr;
-
-
-                foreach(Asignatura *a, m_asignaturas)
-                {
-                    if(a->nombre() == nombreAsignatura)
-                    {
-                        asignatura = a;
-                        foreach(Tema *t, a->temas())
-                        {
-                            if(t->nombre() == nombreTema)
-                            {
-                                tema = t;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-                if (!asignatura)
-                {
-                    asignatura = new Asignatura(nombreAsignatura);
-                    m_asignaturas.append(asignatura);
-                }
-                if (!tema)
-                {
-                    tema = new Tema(nombreTema);
-                    asignatura->agregarTema(tema);
-                }
-                Apunte *apunte = new Apunte(termino, concepto);
-                tema->agregarApunte(apunte);
+            // Crear asignatura y agregar a la lista
+            if (datos[0] != asignatura){
+                asignatura = datos[0];
+                m_asignaturas.append(new Asignatura(asignatura));
+                indexA++;
+                indexT = -1;
             }
+            // Crear tema y agregar a la asignatura
+            if (datos[1] != tema){
+                tema = datos[1];
+                m_asignaturas.at(indexA)->agregarTema(new Tema(tema));
+                indexT++;
+            }
+            // Agregar apuntes a cada tema
+            m_asignaturas.at(indexA)->temas().at(indexT)->agregarApunte(new Apunte(datos[2], datos[3]));
         }
-        file.close();
-    }
-    else
-    {
-        QMessageBox::critical(this, "Cargar datos", "Datos no cargados");
+        archivo.close();
     }
 }
 
 void Askme::guardarDatos()
 {
-    QFile file("apuntes.csv");
-    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        QTextStream salida(&file);
-        salida << "Asignatura\tTema\tTermino\tConcepto\n";
-        foreach(Asignatura *a, m_asignaturas)
-        {
-            QString nombreAsignatura = a->nombre();
-            foreach(Tema *t, a->temas())
-            {
-                QString nombreTema = t->nombre();
-                foreach (Apunte *ap, t->apuntes())
-                {
-                    QString termino = ap->termino();
-                    QString concepto = ap->concepto();
-
-                    salida << nombreAsignatura << "\t" << nombreTema << "\t" << termino << "\t" << concepto << "\n";
+    // Abrir el archivo y guardar
+    QFile archivo(ARCHIVO);
+    if (archivo.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream salida(&archivo);
+        // recorrer la lista de asignaturas
+        foreach (Asignatura *a, m_asignaturas) {
+            QString asignatura = a->nombre();
+            // recorrer la lista de temas por asignatura
+            foreach (Tema *t, a->temas()){
+                QString tema = t->nombre();
+                // recorrer los apuntes por cada tema
+                foreach (Apunte *ap, t->apuntes()){
+                    salida << asignatura << "\t" << tema << "\t";
+                    salida << ap->termino() << "\t" << ap->concepto() << "\n";
                 }
             }
         }
-        file.close();
-       //qDebug() << "Archivo cerrado correctamente.";
-    }
-    else
-    {
-        QMessageBox::critical(this, "Agregar apunte", "Datos no guardados");
+        archivo.close();
+        QMessageBox::information(this,"Guardar apuntes","Apuntes guardados con éxito");
+    }else{
+        QMessageBox::critical(this,"Guardar apuntes", "No se puede escribir sobre " + ARCHIVO);
     }
 }
+
 
 void Askme::on_actionNuevo_triggered()
 {
@@ -157,7 +114,6 @@ void Askme::on_actionNuevo_triggered()
     w->cargarAsignaturas();
 
     connect(w, SIGNAL(apunteTomado(Apunte*)), this, SLOT(on_apunteTomado(Apunte*)));
-    connect(w, SIGNAL(nuevaAsignaturaCreada(Asignatura*)), this, SLOT(on_nuevaAsignaturaCreada(Asignatura*)));
 
     cargarSubVentana(w);
 }
@@ -174,28 +130,18 @@ void Askme::on_actionGenerar_triggered()
     cargarSubVentana(w);
 }
 
-void Askme::on_actionLista_triggered()
-{
-    ListForm *w = new ListForm(this);
-
-    w->setAsignaturas(&m_asignaturas);
-
-    w->cargarAsignaturas();
-
-    cargarSubVentana(w);
-    w->show();
-}
 
 void Askme::on_actionSalir_triggered()
 {
-    qApp->quit();
+    this->close();
 }
 
 
-
-void Askme::on_actionCreditos_triggered()
+void Askme::on_actionLista_triggered()
 {
-    CreditosForm *w = new CreditosForm(this);
+    ListForm *w = new ListForm(this);
+    w->setAsignaturas(&m_asignaturas);
+    w->cargarAsignaturas();
+
     cargarSubVentana(w);
 }
-

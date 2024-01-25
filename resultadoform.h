@@ -17,7 +17,7 @@ class ResultadoForm : public QWidget
 public:
     explicit ResultadoForm(QWidget *parent = nullptr);
     ~ResultadoForm();
-    void setDatos(Cuestionario *cuestionario);
+    void setCuestionario(Cuestionario *newCuestionario);
 
 private slots:
     void on_btnCerrar_released();

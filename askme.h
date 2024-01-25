@@ -8,13 +8,15 @@
 #include <QFileDialog>
 #include <QDebug>
 
-#include <apunteform.h>
-#include <asignatura.h>
-#include <listform.h>
-#include <cuestionarioform.h>
-#include <preguntaform.h>
-#include <resultadoform.h>
-#include <creditosform.h>
+#include "apunteform.h"
+#include "cuestionarioform.h"
+#include "preguntaform.h"
+#include "resultadoform.h"
+#include "listaform.h"
+#include "asignatura.h"
+#include "tema.h"
+#include "apunte.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Askme; }
@@ -31,18 +33,16 @@ public:
 public slots:
     void on_apunteTomado(Apunte *apunte);
     void on_cuestionarioCreado(Cuestionario *cuestionario);
-    void on_preguntasContestadas(Cuestionario *cuestionario);
+    void on_cuestionarioFinalizado(Cuestionario *cuestionario);
 
 private slots:
     void on_actionNuevo_triggered();
 
     void on_actionGenerar_triggered();
 
-    void on_actionLista_triggered();
     void on_actionSalir_triggered();
 
-
-    void on_actionCreditos_triggered();
+    void on_actionLista_triggered();
 
 private:
     Ui::Askme *ui;
@@ -51,6 +51,7 @@ private:
     void guardarDatos();
 
     QList<Asignatura*> m_asignaturas;
+    const QString ARCHIVO = "apuntes.csv";
 
 };
 #endif // ASKME_H

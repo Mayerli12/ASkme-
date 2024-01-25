@@ -5,7 +5,7 @@ Cuestionario::Cuestionario()
 
 }
 
-Cuestionario::Cuestionario(Tema *tema) : m_tema(tema)
+Cuestionario::Cuestionario(QString asignatura, Tema *tema) : m_tema(tema), m_asignatura(asignatura), m_mostradas(0)
 {
     foreach (Apunte *a, m_tema->apuntes()){
         m_preguntas.append(new Pregunta(a));
@@ -16,22 +16,32 @@ Cuestionario::Cuestionario(Tema *tema) : m_tema(tema)
 Pregunta *Cuestionario::siguiente()
 {
     // TODO: Lanzar preguntas al azar
-    QList<Pregunta *> preguntasRespondidas;
-    foreach (Pregunta *p, m_preguntas)
-    {
-        if(!p->respondida())
-        {
-            preguntasRespondidas.append(p);
+    foreach(Pregunta *p, m_preguntas){
+        if(!p->respondida()){
+            m_mostradas++;
+            return p;
         }
     }
-    if(!preguntasRespondidas.isEmpty())
-    {
-        int indiceAleatorio = QRandomGenerator::global()->bounded(preguntasRespondidas.size());
-        Pregunta *preguntaAleatoria = preguntasRespondidas[indiceAleatorio];
-        m_mostradas++;
-        return preguntaAleatoria;
-    }
+    return nullptr;
 }
+
+void Cuestionario::terminar()
+{
+    int correctas = 0;
+    int respondidas = 0;
+    foreach(Pregunta *p, m_preguntas){
+        if(p->respondida()){
+            respondidas++;
+            if (p->correcta())
+                correctas++;
+        }
+    }
+    if (respondidas > 0)
+        m_score = (float) correctas / respondidas * 100;
+    else
+        m_score = 0;
+}
+
 const QStringList &Cuestionario::terminos() const
 {
     return m_terminos;
@@ -52,12 +62,12 @@ const QString Cuestionario::nombreTema() const
     return m_tema->nombre();
 }
 
-int Cuestionario::totalPreguntas() const
+int Cuestionario::totalPreguntas()
 {
     return m_preguntas.size();
 }
 
-bool Cuestionario::otrasPreguntas()
+bool Cuestionario::hayMasPreguntas()
 {
     return (m_mostradas < totalPreguntas());
 }
@@ -67,19 +77,12 @@ int Cuestionario::mostradas() const
     return m_mostradas;
 }
 
-void Cuestionario::terminar()
+const QString &Cuestionario::asignatura() const
 {
-    int correctas = 0;
-    int respondidas = 0;
-    foreach(Pregunta *p, m_preguntas){
-        if(p->respondida()){
-            respondidas++;
-            if (p->correcta())
-                correctas++;
-        }
-    }
-    if (respondidas > 0)
-        m_score = (float) correctas / respondidas * 100;
-    else
-        m_score = 0;
+    return m_asignatura;
+}
+
+void Cuestionario::setAsignatura(const QString &newAsignatura)
+{
+    m_asignatura = newAsignatura;
 }

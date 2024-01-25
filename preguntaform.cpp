@@ -3,8 +3,7 @@
 
 PreguntaForm::PreguntaForm(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::PreguntaForm),
-    m_cuestionario(nullptr)
+    ui(new Ui::PreguntaForm)
 {
     ui->setupUi(this);
 }
@@ -18,61 +17,51 @@ void PreguntaForm::setCuestionario(Cuestionario *newCuestionario)
 {
     m_cuestionario = newCuestionario;
     cargarDatos();
-   /* ui->lblTema->setText(m_cuestionario->nombreTema());
-    ui->cmbTerminos->addItems(m_cuestionario->terminos());*/
-
-}
-
-void PreguntaForm::mostrarConceptos()
-{
-
-    if(m_cuestionario->otrasPreguntas())
-    {
-        m_pregunta = m_cuestionario->siguiente();
-        ui->txtConcepto->setText(m_pregunta->apunte()->concepto());
-        ui->txtConcepto->setReadOnly(true);
-
-    }
-    else
-    {
-        ui->txtConcepto->clear();
-    }
-}
-
-void PreguntaForm::on_buttonBox_accepted()
-{
-    // Responde por pregunta
-    QString respuesta = ui->cmbTerminos->currentText();
-    if (!respuesta.isEmpty()) {
-        m_pregunta->responder(respuesta);
-        mostrarConceptos();
-    } else {
-        qDebug() << "Porfavor responda la pregunta";
-    }
 }
 
 void PreguntaForm::cargarDatos()
 {
     ui->lblTema->setText(m_cuestionario->nombreTema());
     ui->cmbTerminos->addItems(m_cuestionario->terminos());
-    mostrarConceptos();
+    obtenerPregunta();
 }
 
-void PreguntaForm::setAsignaturaMostrada(const QString &asignatura)
+void PreguntaForm::siguiente()
 {
-    ui->lblTema->setText(asignatura);
+    QString termino = ui->cmbTerminos->currentText();
+    m_pregunta->responder(termino);
+    obtenerPregunta();
 }
 
-void PreguntaForm::setTemaMostrado(const QString &tema)
+void PreguntaForm::obtenerPregunta()
 {
-    ui->lblTema->setText(tema);
+    if (m_cuestionario->hayMasPreguntas()){
+        m_pregunta = m_cuestionario->siguiente();
+        ui->txtConcepto->setText(m_pregunta->apunte()->concepto());
+        int actual = m_cuestionario->mostradas();
+        int total = m_cuestionario->totalPreguntas();
+        ui->cmbTerminos->setCurrentIndex(0);
+    }else{
+        finalizar();
+    }
+
+}
+
+void PreguntaForm::finalizar()
+{
+    m_cuestionario->terminar();
+    emit cuestionarioFinalizado(m_cuestionario);
+    // Cerrar la ventana
+    this->parentWidget()->close();
 }
 
 void PreguntaForm::on_buttonBox_rejected()
 {
-    emit preguntasRespondidas(m_cuestionario);
-    this->parentWidget()->close();
+    finalizar();
+   }
 
+
+void PreguntaForm::on_buttonBox_accepted()
+{
+    siguiente();
 }
-
-
