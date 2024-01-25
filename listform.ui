@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ListForm</class>
+ <widget class="QWidget" name="ListForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>362</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>71</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Asignatura</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="cmbAsignaturas">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>10</y>
+     <width>251</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>71</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Terminos</string>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tblTermino">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>50</y>
+     <width>256</width>
+     <height>121</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>180</y>
+     <width>61</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Conceptos</string>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tblConcepto">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>180</y>
+     <width>256</width>
+     <height>131</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QDialogButtonBox" name="btnGuardar">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>320</y>
+     <width>156</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
